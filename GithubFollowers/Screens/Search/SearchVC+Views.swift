@@ -54,7 +54,7 @@ extension SearchVC {
             gfButton.heightAnchor.constraint(equalToConstant: 55)
         ])
         
-        gfButton.addTarget(self, action: #selector(gfButtonPressed), for: .touchUpInside)
+        gfButton.addTarget(self, action: #selector(pushFollowersListVC), for: .touchUpInside)
     }
 }
 

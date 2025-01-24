@@ -33,7 +33,8 @@ class GFButton: UIButton {
     // Shared configuration logic
     private func configure(title: String, backgroundColor: UIColor) {
         var configuration = UIButton.Configuration.filled()
-        configuration.title = title
+//        configuration.title = title
+        configuration.attributedTitle = AttributedString(title)
         configuration.attributedTitle?.font = .preferredFont(forTextStyle: .title1)
         configuration.baseBackgroundColor = backgroundColor
         configuration.baseForegroundColor = .white

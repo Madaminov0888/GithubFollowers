@@ -15,10 +15,14 @@ class SearchVC: UIViewController {
     let textField = GFTextField()
     let gfButton = GFButton(backgroundColor: .systemGreen, title: "Get followers")
     
+    var isUsernameEntered: Bool {
+        return !(textField.text?.isEmpty ?? true)
+    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.isNavigationBarHidden = true
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
 
     override func viewDidLoad() {
@@ -41,10 +45,13 @@ class SearchVC: UIViewController {
     }
     
     
-    @objc func gfButtonPressed() {
-        if let text = textField.text {
-            navigationController?.pushViewController(FollowersListVC(username: text), animated: true)
+    @objc func pushFollowersListVC() {
+        guard self.isUsernameEntered, let text = textField.text else {
+            self.presentGFAlertOnMainThread(title: "Empty username", message: "Please enter an username. And try again", buttonTitle: "Ok")
+            return
         }
+        let vc = FollowersListVC(username: text)
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -53,9 +60,7 @@ class SearchVC: UIViewController {
 
 extension SearchVC: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if let text = textField.text {
-            navigationController?.pushViewController(FollowersListVC(username: text), animated: true)
-        }
+        pushFollowersListVC()
         return true
     }
 }
