@@ -48,6 +48,7 @@ class NetworkManagerCompletion: NetworkManagerCompletionProtocol {
 
         guard let data = data else {
             completion(.failure(NetworkErrors.invalidData))
+            print(String(data: data ?? Data(), encoding: .utf8))
             return
         }
 

@@ -12,10 +12,16 @@ import SwiftUI
 class FollowersListVC: UIViewController {
     
     var username: String
-    private let networkManager: NetworkManagerProtocol
-    private let networkManagerCompletion: NetworkManagerCompletionProtocol
+    let networkManager: NetworkManagerProtocol
+    let networkManagerCompletion: NetworkManagerCompletionProtocol
     var page: Int = 1
-    private var followers: [FollowersModel] = []
+    var followers: [FollowersModel] = [] {
+        didSet {
+            collectionView?.reloadData()
+        }
+    }
+    
+    var collectionView: UICollectionView?
     
     init(username: String, networkManager: NetworkManagerProtocol = NetworkManager(), networkManagerCompletion: NetworkManagerCompletionProtocol = NetworkManagerCompletion()) {
         self.username = username
@@ -40,14 +46,17 @@ class FollowersListVC: UIViewController {
     }
     
     
-    
     func configure() {
         self.view.backgroundColor = .systemBackground
         navigationController?.navigationBar.prefersLargeTitles = true
         self.title = username
     }
-    
-    
+}
+
+
+
+//MARK: Functions
+extension FollowersListVC {
     func getFollowers() {
         Task {
             do {
@@ -59,9 +68,7 @@ class FollowersListVC: UIViewController {
                 print(error.localizedDescription)
             }
         }
-    }
-    
-    
+    }    
     
     func getFollowersCompletionHandler() {
         networkManagerCompletion.fetchData(for: .followers(username: username, page: page), type: [FollowersModel].self) { [weak self] result in
@@ -80,7 +87,7 @@ class FollowersListVC: UIViewController {
 
 
 #Preview {
-    let nc = UINavigationController(rootViewController: FollowersListVC(username: "lox"))
+    let nc = UINavigationController(rootViewController: FollowersListVC(username: "SAllen0400"))
     SwiftUIPreview(vc: nc)
         .ignoresSafeArea()
 }

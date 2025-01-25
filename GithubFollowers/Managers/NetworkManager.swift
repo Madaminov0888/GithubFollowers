@@ -5,11 +5,12 @@
 //  Created by Muhammadjon Madaminov on 23/01/25.
 //
 
-import Foundation
+import UIKit
 
 
 protocol NetworkManagerProtocol {
     func fetchData<T:Codable>(for endpoint: Endpoint, type: T.Type) async throws -> T
+    func downloadImage(from url: String) async throws -> UIImage
 }
 
 
@@ -18,7 +19,9 @@ class NetworkManager: NetworkManagerProtocol {
     private let session: URLSession
 
     init(session: URLSession = .shared) {
-        self.session = session
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .returnCacheDataElseLoad
+        self.session = URLSession(configuration: config)
     }
     
     
@@ -41,11 +44,35 @@ class NetworkManager: NetworkManagerProtocol {
         return responseModel
     }
     
+    
+    
+    func downloadImage(from url: String) async throws -> UIImage {
+        guard let url = URL(string: url) else {
+            throw NetworkErrors.invalidURL
+        }
+        let request = URLRequest(url: url)
+        if let cachedResponse = URLCache.shared.cachedResponse(for: request),
+           let image = UIImage(data: cachedResponse.data) {
+            print("returned Cached image")
+            return image
+        }
+        let (data, response) = try await session.data(for: request)
+        try handleHttpResponse(response: response)
+        
+        guard let image = UIImage(data: data) else {
+            throw NetworkErrors.invalidData
+        }
+        
+        let cachedResponse = CachedURLResponse(response: response, data: data)
+        URLCache.shared.storeCachedResponse(cachedResponse, for: request)
+        print("Image cached")
+        
+        return image
+    }
+    
 }
 
 
-
-import Foundation
 
 enum NetworkErrors: Error {
     case invalidURL
