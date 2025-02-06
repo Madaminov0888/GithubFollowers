@@ -30,7 +30,8 @@ class NetworkManagerCompletion: NetworkManagerCompletionProtocol {
 
         let request = URLRequest(url: url)
         session.dataTask(with: request) { [weak self] data, response, error in
-            self?.handleResponse(data: data, response: response, error: error, completion: completion)
+            guard let self else { return }
+            self.handleResponse(data: data, response: response, error: error, completion: completion)
         }.resume()
     }
     
@@ -48,7 +49,6 @@ class NetworkManagerCompletion: NetworkManagerCompletionProtocol {
 
         guard let data = data else {
             completion(.failure(NetworkErrors.invalidData))
-            print(String(data: data ?? Data(), encoding: .utf8))
             return
         }
 

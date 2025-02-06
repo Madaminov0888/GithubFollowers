@@ -53,7 +53,6 @@ class NetworkManager: NetworkManagerProtocol {
         let request = URLRequest(url: url)
         if let cachedResponse = URLCache.shared.cachedResponse(for: request),
            let image = UIImage(data: cachedResponse.data) {
-            print("returned Cached image")
             return image
         }
         let (data, response) = try await session.data(for: request)
@@ -65,7 +64,6 @@ class NetworkManager: NetworkManagerProtocol {
         
         let cachedResponse = CachedURLResponse(response: response, data: data)
         URLCache.shared.storeCachedResponse(cachedResponse, for: request)
-        print("Image cached")
         
         return image
     }

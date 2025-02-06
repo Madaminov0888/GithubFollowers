@@ -12,16 +12,24 @@ import SwiftUI
 class FollowersListVC: UIViewController {
     
     var username: String
+    var hasMoreFollers: Bool = true
     let networkManager: NetworkManagerProtocol
     let networkManagerCompletion: NetworkManagerCompletionProtocol
-    var page: Int = 1
+    var dataSource: UICollectionViewDiffableDataSource<Section, FollowersModel>?
+    
+    var page: Int = 1 {
+        didSet {
+            getFollowersCompletionHandler()
+        }
+    }
     var followers: [FollowersModel] = [] {
         didSet {
-            collectionView?.reloadData()
+            updateData(followers)
         }
     }
     
     var collectionView: UICollectionView?
+    var loadingView: UIView = UIView()
     
     init(username: String, networkManager: NetworkManagerProtocol = NetworkManager(), networkManagerCompletion: NetworkManagerCompletionProtocol = NetworkManagerCompletion()) {
         self.username = username
@@ -42,7 +50,19 @@ class FollowersListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
+        configureSearchBar()
         getFollowersCompletionHandler()
+    }
+    
+    
+    private func configureSearchBar() {
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search followers..."
+        searchController.searchBar.tintColor = .systemGreen
+        self.navigationItem.searchController = searchController
     }
     
     
@@ -50,6 +70,9 @@ class FollowersListVC: UIViewController {
         self.view.backgroundColor = .systemBackground
         navigationController?.navigationBar.prefersLargeTitles = true
         self.title = username
+        self.collectionView = createCollectionView()
+        configureCollectionView()
+        configureDataSource()
     }
 }
 
@@ -58,36 +81,62 @@ class FollowersListVC: UIViewController {
 //MARK: Functions
 extension FollowersListVC {
     func getFollowers() {
-        Task {
+        self.showLoadingScreen(loadingScreen: loadingView)
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let followers = try await networkManager.fetchData(for: .followers(username: username ,page: page), type: [FollowersModel].self)
                 await MainActor.run {
+                    if followers.count < 100 { self.hasMoreFollers = false }
+                    self.removeLoadingView(loadingView: self.loadingView)
                     self.followers.append(contentsOf: followers)
                 }
             } catch {
-                print(error.localizedDescription)
+                self.presentGFAlertOnMainThread(title: "Error", message: error.localizedDescription, buttonTitle: "Ok")
             }
         }
-    }    
+    }
+  
     
     func getFollowersCompletionHandler() {
+        self.showLoadingScreen(loadingScreen: loadingView)
         networkManagerCompletion.fetchData(for: .followers(username: username, page: page), type: [FollowersModel].self) { [weak self] result in
+            guard let self else { return }
+            
             switch result {
             case .success(let followers):
                 DispatchQueue.main.async {
-                    self?.followers = followers
+                    if followers.count < 100 { self.hasMoreFollers = false }
+                    self.removeLoadingView(loadingView: self.loadingView)
+                    self.followers.append(contentsOf: followers)
                 }
             case .failure(let failure):
-                self?.presentGFAlertOnMainThread(title: "Error", message: failure.localizedDescription, buttonTitle: "Ok")
+                self.presentGFAlertOnMainThread(title: "Error", message: failure.localizedDescription, buttonTitle: "Ok")
             }
         }
     }
 }
 
 
+extension FollowersListVC: UISearchBarDelegate, UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        if let searchText = searchController.searchBar.text, !searchText.isEmpty {
+            let filteredArray = followers.filter { $0.login.lowercased().contains(searchText.lowercased()) }
+            updateData(filteredArray)
+        } else {
+            updateData(followers)
+        }
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        updateData(followers)
+    }
+}
+
+
 
 #Preview {
-    let nc = UINavigationController(rootViewController: FollowersListVC(username: "SAllen0400"))
+    let nc = UINavigationController(rootViewController: FollowersListVC(username: "sallen0400"))
     SwiftUIPreview(vc: nc)
         .ignoresSafeArea()
 }

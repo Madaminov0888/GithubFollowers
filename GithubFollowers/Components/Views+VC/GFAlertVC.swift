@@ -118,10 +118,3 @@ extension GFAlertVC {
         ])
     }
 }
-
-
-
-#Preview {
-    SwiftUIPreview(vc: GFAlertVC(alertTitle: "Fuck off", alertMessage: "You are being said fuck off", alertButtonTitle: "Fucking off"))
-        .ignoresSafeArea()
-}

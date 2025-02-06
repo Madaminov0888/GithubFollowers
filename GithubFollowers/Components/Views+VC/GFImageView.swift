@@ -51,13 +51,14 @@ class GFImageView: UIImageView {
     private func getImage(url: String) {
         self.imageURL = url
         self.image = nil
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let image = try await networkManager.downloadImage(from: url)
                 if self.imageURL == url {
                     await MainActor.run {
                         self.image = image
-                        activityIndicator.stopAnimating()
+                        self.activityIndicator.stopAnimating()
                     }
                 }
             } catch {

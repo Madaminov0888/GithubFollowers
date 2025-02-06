@@ -48,7 +48,7 @@ class FollowersCell: UICollectionViewCell {
             followerImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: padding),
             followerImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: padding),
             followerImageView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -padding),
-            followerImageView.heightAnchor.constraint(equalTo: contentView.widthAnchor),
+            followerImageView.heightAnchor.constraint(equalTo: followerImageView.widthAnchor),
         ])
     }
     
