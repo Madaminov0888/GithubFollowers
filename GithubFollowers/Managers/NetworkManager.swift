@@ -14,7 +14,7 @@ protocol NetworkManagerProtocol {
 }
 
 
-class NetworkManager: NetworkManagerProtocol {
+final class NetworkManager: NetworkManagerProtocol {
     
     private let session: URLSession
 

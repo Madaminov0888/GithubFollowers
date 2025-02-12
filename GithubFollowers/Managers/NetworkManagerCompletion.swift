@@ -14,7 +14,7 @@ protocol NetworkManagerCompletionProtocol {
 
 
 
-class NetworkManagerCompletion: NetworkManagerCompletionProtocol {
+final class NetworkManagerCompletion: NetworkManagerCompletionProtocol {
     private let session: URLSession
 
     init(session: URLSession = .shared) {

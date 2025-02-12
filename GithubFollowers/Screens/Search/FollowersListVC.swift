@@ -9,7 +9,7 @@ import UIKit
 import SwiftUI
 
 
-class FollowersListVC: UIViewController {
+final class FollowersListVC: UIViewController {
     
     var username: String
     var hasMoreFollers: Bool = true
@@ -24,7 +24,13 @@ class FollowersListVC: UIViewController {
     }
     var followers: [FollowersModel] = [] {
         didSet {
+            filteredFollowers = followers
             updateData(followers)
+        }
+    }
+    var filteredFollowers: [FollowersModel] = [] {
+        didSet {
+            updateData(filteredFollowers)
         }
     }
     
@@ -122,14 +128,14 @@ extension FollowersListVC: UISearchBarDelegate, UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         if let searchText = searchController.searchBar.text, !searchText.isEmpty {
             let filteredArray = followers.filter { $0.login.lowercased().contains(searchText.lowercased()) }
-            updateData(filteredArray)
+            filteredFollowers = filteredArray
         } else {
-            updateData(followers)
+            filteredFollowers = followers
         }
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        updateData(followers)
+        filteredFollowers = followers
     }
 }
 
@@ -191,8 +197,8 @@ extension FollowersListVC: UICollectionViewDelegateFlowLayout, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let userInfoVC = UserInfoVC()
-        userInfoVC.configure(follower: followers[indexPath.row])
-        self.present(userInfoVC, animated: true)
+        userInfoVC.configure(follower: filteredFollowers[indexPath.row])
+        self.present(UINavigationController(rootViewController: userInfoVC), animated: true)
     }
     
     

@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
 
-class SearchVC: UIViewController {
+final class SearchVC: UIViewController {
     
     
     let logoImageView: UIImageView = UIImageView()

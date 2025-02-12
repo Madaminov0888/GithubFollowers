@@ -23,4 +23,23 @@ extension String {
         let passwordPredicate = NSPredicate (format: "SELF MATCHES %@", passwordFormat)
         return passwordPredicate.evaluate(with: self)
     }
+    
+    
+    var formatDateString: String? {
+        let inputFormatter = DateFormatter()
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX")
+        inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        
+        guard let date = inputFormatter.date(from: self) else {
+            return nil
+        }
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.locale = Locale(identifier: "en_US_POSIX")
+        outputFormatter.dateFormat = "MMM yyyy"
+        
+        return outputFormatter.string(from: date)
+    }
+
+    
 }

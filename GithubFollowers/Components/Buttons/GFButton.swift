@@ -55,7 +55,7 @@ class GFButton: UIButton {
         translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private func setBackgroundColor(color: UIColor, forState state: UIControl.State) {
+    func setBackgroundColor(color: UIColor, forState state: UIControl.State) {
         let image = UIImage(color: color)
         self.setBackgroundImage(image, for: state)
     }
